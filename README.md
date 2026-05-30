@@ -276,6 +276,30 @@ Example:
 ```
 hostname:port:database:username:password
 ```
+
+Create
+```text
+root/.devcontainer/pgadmin.servers.json
+```
+
+Example
+```json
+{
+  "Servers": {
+    "1": {
+      "Name": "PostGIS Local",
+      "Group": "Servers",
+      "Host": "postgis",
+      "Port": 5432,
+      "MaintenanceDB": "gis",
+      "Username": "user",
+      "SSLMode": "prefer",
+      "PassFile": "/pgpass"
+    }
+  }
+}
+```
+
 ---
 
 ### VS Code Dev Container Creation
