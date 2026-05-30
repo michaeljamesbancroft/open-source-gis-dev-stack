@@ -1,0 +1,57 @@
+# secrets
+.env
+.env.*
+!.env.example
+.devcontainer/pgadmin/.pgpass
+!.devcontainer/pgadmin/.pgpass.example
+*.pem
+*.key
+*.crt
+secrets/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# In-progress Jupyter notebook
+notebooks/in-progress/*
+!notebooks/environment_test
+
+# Large data files
+data/raw/
+data/processed/*
+data/external/*
+data/outputs/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/outputs/.gitkeep
+!data/external/.gitkeep
+
+# Database dumps and exports
+*.dump
+*.backup
+*.sql.gz
+*.csv
+*.gpkg
+*.parquet
+*.tif
+*.geojson
+
+# Docker / Volumes / Logs
+docker-data/
+logs/
+*.log
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

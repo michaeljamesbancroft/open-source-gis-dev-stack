@@ -1,0 +1,105 @@
+services:
+
+  postgis:
+    image: postgis/postgis:16-3.4
+    container_name: postgis
+    restart: unless-stopped
+
+    env_file:
+      - ../.env
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?missing}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?missing}
+      POSTGRES_DB: ${POSTGRES_DB:?missing}
+
+    ports:
+      - "127.0.0.1:5432:5432"
+
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+      - ../sql:/docker-entrypoint-initdb.d
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: unless-stopped
+
+    env_file:
+      - ../.env
+
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:?missing}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:?missing}
+
+    ports:
+      - "127.0.0.1:5050:80"
+
+    depends_on:
+      - postgis
+
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
+      - ./pgadmin/.pgpass:/pgpass
+
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:8080:8080"
+
+    depends_on:
+      - postgis
+
+  jupyter:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+
+    container_name: jupyterlab
+    restart: unless-stopped
+
+    env_file:
+      - ../.env
+
+    environment:
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN:-}
+
+    ports:
+      - "127.0.0.1:8888:8888"
+      - "127.0.0.1:8501:8501"
+
+    volumes:
+      - ../notebooks:/home/jovyan/work
+      - ../data:/home/jovyan/data
+      - ../src:/home/jovyan/src
+      - ../outputs:/home/jovyan/outputs
+
+    depends_on:
+      - postgis
+
+    command: start-notebook.py --IdentityProvider.token=${JUPYTER_TOKEN:-}
+
+  pg_tileserv:
+    image: pramsey/pg_tileserv:latest
+    container_name: pg_tileserv
+    restart: unless-stopped
+
+    env_file:
+      - ../.env
+
+    environment:
+      DATABASE_URL: postgres://${TILESERVER_USER:?missing}:${TILESERVER_PASSWORD:?missing}@postgis:5432/${POSTGRES_DB:?missing}
+
+    ports:
+      - "127.0.0.1:7800:7800"
+
+    depends_on:
+      - postgis
+
+volumes:
+  postgis_data:
+  pgadmin_data:
