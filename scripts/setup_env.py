@@ -5,16 +5,16 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 
 ENV_PATH = ROOT / ".env"
-PGPASS_PATH = ROOT / ".devcontainer" / "pgadmin" / ".pgpass"
-SERVERS_JSON_PATH = ROOT / ".devcontainer" / "pgadmin" / "servers.json"
 
+PGADMIN_DIR = ROOT / ".devcontainer" / "pgadmin"
 
-def prompt_default(prompt: str, default: str) -> str:
-    value = input(f"{prompt} [{default}]: ").strip()
-    return value or default
+PGPASS_PATH = PGADMIN_DIR / ".pgpass"
+
+SERVERS_JSON_PATH = PGADMIN_DIR / "servers.json"
 
 
 def prompt_required(prompt: str) -> str:
+
     value = input(prompt).strip()
 
     if not value:
@@ -23,7 +23,11 @@ def prompt_required(prompt: str) -> str:
     return value
 
 
-def prompt_password(prompt: str, allow_blank: bool = False) -> str:
+def prompt_password(
+    prompt: str,
+    allow_blank: bool = False
+) -> str:
+
     value = input(prompt).strip()
 
     if not allow_blank and not value:
@@ -32,8 +36,15 @@ def prompt_password(prompt: str, allow_blank: bool = False) -> str:
     return value
 
 
-def validate_identifier(value: str, label: str) -> str:
-    if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", value):
+def validate_identifier(
+    value: str,
+    label: str
+) -> str:
+
+    if not re.match(
+        r"^[A-Za-z_][A-Za-z0-9_]*$",
+        value
+    ):
         raise ValueError(
             f"{label} must begin with a letter or underscore "
             "and contain only letters, numbers, and underscores."
@@ -42,62 +53,15 @@ def validate_identifier(value: str, label: str) -> str:
     return value
 
 
-def load_servers_json() -> dict:
-    if SERVERS_JSON_PATH.exists():
-        return json.loads(SERVERS_JSON_PATH.read_text(encoding="utf-8"))
-
-    return {"Servers": {}}
-
-
-def save_servers_json(data: dict) -> None:
-    SERVERS_JSON_PATH.parent.mkdir(parents=True, exist_ok=True)
-    SERVERS_JSON_PATH.write_text(
-        json.dumps(data, indent=2),
-        encoding="utf-8"
-    )
-
-
-def get_or_create_pgadmin_server(
+def create_servers_json(
     server_name: str,
     postgres_db: str,
-    postgres_user: str,
+    postgres_user: str
 ) -> None:
-    data = load_servers_json()
 
-    servers = data.setdefault("Servers", {})
-
-    existing_key = None
-
-    for key, server in servers.items():
-        if server.get("Name") == server_name:
-            existing_key = key
-            break
-
-    if existing_key is None:
-        numeric_keys = [
-            int(key)
-            for key in servers.keys()
-            if str(key).isdigit()
-        ]
-
-        new_key = str(max(numeric_keys, default=0) + 1)
-
-        servers[new_key] = {
-            "Name": server_name,
-            "Group": "Servers",
-            "Host": "postgis",
-            "Port": 5432,
-            "MaintenanceDB": postgres_db,
-            "Username": postgres_user,
-            "SSLMode": "prefer",
-            "PassFile": "/pgpass"
-        }
-
-        print(f"\nCreated new pgAdmin server entry: {server_name}")
-
-    else:
-        servers[existing_key].update(
-            {
+    server_config = {
+        "Servers": {
+            "1": {
                 "Name": server_name,
                 "Group": "Servers",
                 "Host": "postgis",
@@ -107,18 +71,28 @@ def get_or_create_pgadmin_server(
                 "SSLMode": "prefer",
                 "PassFile": "/pgpass"
             }
-        )
+        }
+    }
 
-        print(f"\nUpdated existing pgAdmin server entry: {server_name}")
+    PGADMIN_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
-    save_servers_json(data)
+    SERVERS_JSON_PATH.write_text(
+        json.dumps(
+            server_config,
+            indent=2
+        ),
+        encoding="utf-8"
+    )
 
 
 print("\nGIS Dev Stack Credential Setup")
 print("--------------------------------")
 
 # ---------------------------------------------------------
-# pgAdmin server registration name
+# pgAdmin server display name
 # ---------------------------------------------------------
 
 pgadmin_server_name = prompt_required(
@@ -130,9 +104,8 @@ pgadmin_server_name = prompt_required(
 # ---------------------------------------------------------
 
 postgres_user = validate_identifier(
-    prompt_default(
-        "PostGIS username",
-        "gis"
+    prompt_required(
+        "PostGIS username: "
     ),
     "PostGIS username"
 )
@@ -146,13 +119,11 @@ postgres_password = prompt_password(
 # ---------------------------------------------------------
 
 print("\nDatabase Setup")
-print("1. Use default database: gis")
+print("1. Use database named 'gis'")
 print("2. Enter custom database name")
-print("3. Use project-specific database name")
 
-db_choice = prompt_default(
-    "Select option",
-    "1"
+db_choice = prompt_required(
+    "Select option: "
 )
 
 if db_choice == "1":
@@ -162,33 +133,25 @@ if db_choice == "1":
 elif db_choice == "2":
 
     postgres_db = validate_identifier(
-        prompt_default(
-            "Database name",
-            "gis"
+        prompt_required(
+            "Database name: "
         ),
         "Database name"
     )
 
-elif db_choice == "3":
-
-    postgres_db = validate_identifier(
-        prompt_default(
-            "Project database name",
-            "gis_project"
-        ),
-        "Project database name"
-    )
-
 else:
+
     raise ValueError(
         "Invalid database selection."
     )
 
-print(f"\nSelected database: {postgres_db}")
+print(
+    f"\nSelected database: {postgres_db}"
+)
 
 print(
     "\nNOTE:"
-    "\nPOSTGRES_DB is only created during FIRST database initialization."
+    "\nPOSTGRES_DB is only created during FIRST initialization."
     "\nIf using an existing Docker volume and changing DB names,"
     "\nrun:"
     "\nmake reset"
@@ -198,9 +161,8 @@ print(
 # pgAdmin login credentials
 # ---------------------------------------------------------
 
-pgadmin_email = prompt_default(
-    "pgAdmin email",
-    "admin@example.com"
+pgadmin_email = prompt_required(
+    "pgAdmin email: "
 )
 
 pgadmin_password = prompt_password(
@@ -252,9 +214,19 @@ NOTEBOOK_DB_USER=notebook
 NOTEBOOK_DB_PASSWORD={notebook_password}
 """
 
+ENV_PATH.write_text(
+    env_content,
+    encoding="utf-8"
+)
+
 # ---------------------------------------------------------
 # Generate .pgpass
 # ---------------------------------------------------------
+
+PGADMIN_DIR.mkdir(
+    parents=True,
+    exist_ok=True
+)
 
 pgpass_content = (
     f"postgis:5432:"
@@ -263,26 +235,16 @@ pgpass_content = (
     f"{postgres_password}\n"
 )
 
-ENV_PATH.write_text(
-    env_content,
-    encoding="utf-8"
-)
-
-PGPASS_PATH.parent.mkdir(
-    parents=True,
-    exist_ok=True
-)
-
 PGPASS_PATH.write_text(
     pgpass_content,
     encoding="utf-8"
 )
 
 # ---------------------------------------------------------
-# Update servers.json
+# Generate servers.json
 # ---------------------------------------------------------
 
-get_or_create_pgadmin_server(
+create_servers_json(
     server_name=pgadmin_server_name,
     postgres_db=postgres_db,
     postgres_user=postgres_user,
@@ -292,7 +254,7 @@ get_or_create_pgadmin_server(
 # Completion
 # ---------------------------------------------------------
 
-print("\nCreated/updated:")
+print("\nCreated:")
 
 print(f"  {ENV_PATH}")
 print(f"  {PGPASS_PATH}")
@@ -300,7 +262,9 @@ print(f"  {SERVERS_JSON_PATH}")
 
 print("\nNext steps:")
 
-print("\ncd .devcontainer")
+print(
+    "\ncd .devcontainer"
+)
 
 print(
     "docker compose "
