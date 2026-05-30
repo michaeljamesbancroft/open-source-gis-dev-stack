@@ -1,4 +1,4 @@
-# GIS Dev Stack — Dockerized Open Source Geospatial Analytics Environment
+# Open Source GIS Dev Stack — Dockerized Open Source Geospatial Analytics Environment
 
 A reproducible geospatial analytics development environment using Docker, PostGIS, pgAdmin, JupyterLab, GeoPandas, and modern Python GIS tooling.
 
