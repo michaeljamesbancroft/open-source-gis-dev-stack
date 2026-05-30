@@ -1,9 +1,14 @@
 # secrets
 .env
 .env.*
+
 !.env.example
 .devcontainer/pgadmin/.pgpass
 !.devcontainer/pgadmin/.pgpass.example
+
+.devcontainer/pgadmin/servers.json
+!.devcontainer/pgadmin/servers.json.example
+
 *.pem
 *.key
 *.crt
