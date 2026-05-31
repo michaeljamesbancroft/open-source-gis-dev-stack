@@ -27,7 +27,7 @@ __pycache__/
 Thumbs.db
 
 # In-progress Jupyter notebook
-notebooks/in-progress/*
+notebooks/in_progress/*.ipynb
 !notebooks/environment_test
 
 # Large data files
