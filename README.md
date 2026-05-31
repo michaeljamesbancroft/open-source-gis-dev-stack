@@ -622,4 +622,4 @@ Planned additions:
 [Return to Table of Contents](#table-of-contents)
 ## License
 
-MIT License
+[MIT License](https://mit-license.org/)
