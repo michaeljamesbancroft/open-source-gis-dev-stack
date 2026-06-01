@@ -234,10 +234,3 @@ SELECT
     park_type,
     geom
 FROM staging.parks_clean;
-
----------------------------------------------------------------
--- Grant pg_tileserv read access
----------------------------------------------------------------
-
-GRANT SELECT ON ALL TABLES IN SCHEMA tiles TO tileserver;
-GRANT SELECT ON ALL SEQUENCES IN SCHEMA tiles TO tileserver;

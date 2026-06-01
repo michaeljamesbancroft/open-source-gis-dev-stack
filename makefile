@@ -1,6 +1,9 @@
 setup:
 	python scripts/setup_env.py
 
+apply-roles:
+	cd .devcontainer && docker compose --env-file ../.env exec -T postgis psql -U $$(grep POSTGRES_USER ../.env | cut -d= -f2) -d $$(grep POSTGRES_DB ../.env | cut -d= -f2) < ../sql/98_generated_roles.sql
+
 up:
 	cd .devcontainer && docker compose --env-file ../.env up -d --build
 
@@ -30,6 +33,9 @@ shell-jupyter:
 shell-postgis:
 	docker exec -it postgis bash
 
+shell-gdal:
+	docker exec -it jupyterlab bash
+
 psql:
 	docker exec -it postgis psql \
 	-U $$POSTGRES_USER \
@@ -46,6 +52,3 @@ init-db:
 	-U $$POSTGRES_USER \
 	-d $$POSTGRES_DB \
 	-f /docker-entrypoint-initdb.d/02_schemas.sql
-
-gdal-shell:
-	docker exec -it jupyterlab bash

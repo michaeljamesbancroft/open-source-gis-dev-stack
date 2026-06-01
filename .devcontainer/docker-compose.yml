@@ -20,6 +20,13 @@ services:
       - postgis_data:/var/lib/postgresql/data
       - ../sql:/docker-entrypoint-initdb.d
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
@@ -98,7 +105,8 @@ services:
       - "127.0.0.1:7800:7800"
 
     depends_on:
-      - postgis
+      postgis:
+        condition: service_healthy
 
 volumes:
   postgis_data:

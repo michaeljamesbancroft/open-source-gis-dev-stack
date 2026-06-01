@@ -9,6 +9,8 @@
 .devcontainer/pgadmin/servers.json
 !.devcontainer/pgadmin/servers.json.example
 
+sql/98_generated_roles.sql
+
 *.pem
 *.key
 *.crt

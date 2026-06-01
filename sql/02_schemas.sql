@@ -1,10 +1,16 @@
 -- ============================================================
 -- 02_schemas.sql
--- Schema organization + security-oriented permissions
+-- Local solo-developer schema organization for GIS Dev Stack
+--
+-- Credentials and service roles are NOT defined here.
+-- User-specific roles/passwords should be generated locally by:
+--
+--   scripts/setup_env.py -> sql/98_generated_roles.sql
+--
 -- ============================================================
 
 ---------------------------------------------------------------
--- Create Schemas
+-- Create project schemas
 ---------------------------------------------------------------
 
 CREATE SCHEMA IF NOT EXISTS raw;
@@ -16,43 +22,45 @@ CREATE SCHEMA IF NOT EXISTS reference;
 CREATE SCHEMA IF NOT EXISTS admin;
 
 ---------------------------------------------------------------
--- Schema Documentation
+-- Schema documentation
 ---------------------------------------------------------------
 
 COMMENT ON SCHEMA raw IS
-'Original imported source datasets. Minimal modification.';
+'Original imported source datasets with minimal modification.';
 
 COMMENT ON SCHEMA staging IS
-'Cleaned, transformed, normalized intermediate datasets.';
+'Cleaned, transformed, standardized intermediate ETL layers.';
 
 COMMENT ON SCHEMA analytics IS
-'Analytical outputs, metrics, models, final analysis products.';
+'Analytical outputs, reporting layers, derived metrics, and final analysis products.';
 
 COMMENT ON SCHEMA scratch IS
-'Temporary workspace for experimentation and notebook work.';
+'Temporary local workspace for notebooks, debugging, experiments, and disposable tables.';
 
 COMMENT ON SCHEMA tiles IS
-'Views/tables intended for pg_tileserv publication.';
+'Curated views and tables intended for local pg_tileserv publication.';
 
 COMMENT ON SCHEMA reference IS
-'Lookup tables, boundaries, CRS tables, controlled vocabularies.';
+'Lookup tables, metadata, CRS references, study boundaries, and controlled vocabularies.';
 
 COMMENT ON SCHEMA admin IS
-'ETL metadata, audit tables, pipeline logs, maintenance objects.';
+'Administrative objects, ETL metadata, logs, helper functions, and inspection views.';
 
 ---------------------------------------------------------------
--- Public Schema Hardening
+-- Local public schema hardening
 ---------------------------------------------------------------
+
+-- Prevent arbitrary users from creating objects in public.
+-- This is still local/dev-friendly but avoids messy object placement.
 
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON DATABASE gis FROM PUBLIC;
 
 ---------------------------------------------------------------
--- Development User Permissions
--- CURRENT_USER is the user created by POSTGRES_USER.
+-- Convenience permissions
 ---------------------------------------------------------------
 
-GRANT CONNECT ON DATABASE gis TO CURRENT_USER;
+-- CURRENT_USER is normally the POSTGRES_USER initialized by Docker.
+-- This user remains the primary local administrator/developer.
 
 GRANT USAGE, CREATE ON SCHEMA raw TO CURRENT_USER;
 GRANT USAGE, CREATE ON SCHEMA staging TO CURRENT_USER;
@@ -62,125 +70,162 @@ GRANT USAGE, CREATE ON SCHEMA tiles TO CURRENT_USER;
 GRANT USAGE, CREATE ON SCHEMA reference TO CURRENT_USER;
 GRANT USAGE, CREATE ON SCHEMA admin TO CURRENT_USER;
 
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA raw TO CURRENT_USER;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA staging TO CURRENT_USER;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA analytics TO CURRENT_USER;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA scratch TO CURRENT_USER;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA tiles TO CURRENT_USER;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA reference TO CURRENT_USER;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA admin TO CURRENT_USER;
+---------------------------------------------------------------
+-- Default privileges for objects created by CURRENT_USER
+---------------------------------------------------------------
 
 ALTER DEFAULT PRIVILEGES IN SCHEMA raw
-GRANT ALL ON TABLES TO CURRENT_USER;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO CURRENT_USER;
 
 ALTER DEFAULT PRIVILEGES IN SCHEMA staging
-GRANT ALL ON TABLES TO CURRENT_USER;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO CURRENT_USER;
 
 ALTER DEFAULT PRIVILEGES IN SCHEMA analytics
-GRANT ALL ON TABLES TO CURRENT_USER;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO CURRENT_USER;
 
 ALTER DEFAULT PRIVILEGES IN SCHEMA scratch
-GRANT ALL ON TABLES TO CURRENT_USER;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO CURRENT_USER;
 
 ALTER DEFAULT PRIVILEGES IN SCHEMA tiles
-GRANT ALL ON TABLES TO CURRENT_USER;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO CURRENT_USER;
 
 ALTER DEFAULT PRIVILEGES IN SCHEMA reference
-GRANT ALL ON TABLES TO CURRENT_USER;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO CURRENT_USER;
 
 ALTER DEFAULT PRIVILEGES IN SCHEMA admin
-GRANT ALL ON TABLES TO CURRENT_USER;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO CURRENT_USER;
 
 ---------------------------------------------------------------
--- Read-Only pg_tileserv Role
+-- Scratch helper table
 ---------------------------------------------------------------
 
-DO
+CREATE TABLE IF NOT EXISTS scratch.session_notes (
+    id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    notebook_name TEXT,
+    note TEXT
+);
+
+COMMENT ON TABLE scratch.session_notes IS
+'Temporary local notebook/debugging notes. Safe to delete.';
+
+---------------------------------------------------------------
+-- Admin metadata tables
+---------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS admin.etl_runs (
+    run_id BIGSERIAL PRIMARY KEY,
+    pipeline_name TEXT NOT NULL,
+    started_at TIMESTAMPTZ DEFAULT NOW(),
+    completed_at TIMESTAMPTZ,
+    status TEXT,
+    message TEXT
+);
+
+COMMENT ON TABLE admin.etl_runs IS
+'Local ETL execution history and development pipeline notes.';
+
+CREATE TABLE IF NOT EXISTS admin.data_sources (
+    source_id BIGSERIAL PRIMARY KEY,
+    source_name TEXT UNIQUE,
+    source_type TEXT,
+    source_url TEXT,
+    source_description TEXT,
+    refresh_frequency TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+COMMENT ON TABLE admin.data_sources IS
+'Local catalog of source GIS datasets, APIs, and downloads.';
+
+---------------------------------------------------------------
+-- Geometry inventory view
+---------------------------------------------------------------
+
+CREATE OR REPLACE VIEW admin.geometry_inventory AS
+SELECT
+    f_table_schema AS schema_name,
+    f_table_name AS table_name,
+    f_geometry_column AS geometry_column,
+    coord_dimension,
+    srid,
+    type AS geometry_type
+FROM geometry_columns
+ORDER BY
+    f_table_schema,
+    f_table_name,
+    f_geometry_column;
+
+COMMENT ON VIEW admin.geometry_inventory IS
+'Convenience inventory of PostGIS geometry columns.';
+
+---------------------------------------------------------------
+-- Table size monitoring view
+---------------------------------------------------------------
+
+CREATE OR REPLACE VIEW admin.table_sizes AS
+SELECT
+    schemaname,
+    tablename,
+    pg_size_pretty(
+        pg_total_relation_size(
+            quote_ident(schemaname)
+            || '.'
+            || quote_ident(tablename)
+        )
+    ) AS total_size
+FROM pg_tables
+WHERE schemaname NOT IN (
+    'pg_catalog',
+    'information_schema'
+)
+ORDER BY
+    pg_total_relation_size(
+        quote_ident(schemaname)
+        || '.'
+        || quote_ident(tablename)
+    ) DESC;
+
+COMMENT ON VIEW admin.table_sizes IS
+'Local storage usage report for user-facing tables.';
+
+---------------------------------------------------------------
+-- Scratch cleanup helper
+---------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION admin.reset_scratch_schema()
+RETURNS VOID
+LANGUAGE plpgsql
+AS
 $$
+DECLARE
+    obj RECORD;
 BEGIN
-    IF NOT EXISTS (
-        SELECT 1
-        FROM pg_catalog.pg_roles
-        WHERE rolname = 'tileserver'
-    ) THEN
-        CREATE ROLE tileserver
-        LOGIN
-        PASSWORD 'tileserver_password';
-    END IF;
-END
+    FOR obj IN
+        SELECT
+            tablename
+        FROM pg_tables
+        WHERE schemaname = 'scratch'
+          AND tablename <> 'session_notes'
+    LOOP
+        EXECUTE
+            'DROP TABLE IF EXISTS scratch.'
+            || quote_ident(obj.tablename)
+            || ' CASCADE';
+    END LOOP;
+END;
 $$;
 
-GRANT CONNECT ON DATABASE gis TO tileserver;
-GRANT USAGE ON SCHEMA tiles TO tileserver;
-GRANT SELECT ON ALL TABLES IN SCHEMA tiles TO tileserver;
-GRANT SELECT ON ALL SEQUENCES IN SCHEMA tiles TO tileserver;
-
-ALTER DEFAULT PRIVILEGES IN SCHEMA tiles
-GRANT SELECT ON TABLES TO tileserver;
-
-ALTER DEFAULT PRIVILEGES IN SCHEMA tiles
-GRANT SELECT ON SEQUENCES TO tileserver;
+COMMENT ON FUNCTION admin.reset_scratch_schema() IS
+'Drops disposable scratch tables while preserving scratch.session_notes.';
 
 ---------------------------------------------------------------
--- Notebook Role
--- Intended for analysis notebooks with limited permissions.
----------------------------------------------------------------
-
-DO
-$$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1
-        FROM pg_catalog.pg_roles
-        WHERE rolname = 'notebook'
-    ) THEN
-        CREATE ROLE notebook
-        LOGIN
-        PASSWORD 'notebook_password';
-    END IF;
-END
-$$;
-
-GRANT CONNECT ON DATABASE gis TO notebook;
-
-GRANT USAGE ON SCHEMA raw TO notebook;
-GRANT USAGE ON SCHEMA staging TO notebook;
-GRANT USAGE ON SCHEMA analytics TO notebook;
-GRANT USAGE ON SCHEMA scratch TO notebook;
-GRANT USAGE ON SCHEMA reference TO notebook;
-
-GRANT SELECT ON ALL TABLES IN SCHEMA raw TO notebook;
-GRANT SELECT ON ALL TABLES IN SCHEMA staging TO notebook;
-GRANT SELECT ON ALL TABLES IN SCHEMA analytics TO notebook;
-GRANT SELECT ON ALL TABLES IN SCHEMA reference TO notebook;
-
-GRANT SELECT, INSERT, UPDATE, DELETE
-ON ALL TABLES IN SCHEMA scratch
-TO notebook;
-
-GRANT CREATE ON SCHEMA scratch TO notebook;
-
-ALTER DEFAULT PRIVILEGES IN SCHEMA raw
-GRANT SELECT ON TABLES TO notebook;
-
-ALTER DEFAULT PRIVILEGES IN SCHEMA staging
-GRANT SELECT ON TABLES TO notebook;
-
-ALTER DEFAULT PRIVILEGES IN SCHEMA analytics
-GRANT SELECT ON TABLES TO notebook;
-
-ALTER DEFAULT PRIVILEGES IN SCHEMA reference
-GRANT SELECT ON TABLES TO notebook;
-
-ALTER DEFAULT PRIVILEGES IN SCHEMA scratch
-GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO notebook;
-
----------------------------------------------------------------
--- Verification Comments
+-- Optional local verification queries
 ---------------------------------------------------------------
 
 /*
 
+-- List project schemas
 SELECT schema_name
 FROM information_schema.schemata
 WHERE schema_name IN (
@@ -194,12 +239,15 @@ WHERE schema_name IN (
 )
 ORDER BY schema_name;
 
-SELECT rolname
-FROM pg_roles
-WHERE rolname IN (
-    'tileserver',
-    'notebook'
-)
-ORDER BY rolname;
+-- Inspect geometry layers
+SELECT *
+FROM admin.geometry_inventory;
+
+-- Inspect table sizes
+SELECT *
+FROM admin.table_sizes;
+
+-- Reset scratch workspace
+SELECT admin.reset_scratch_schema();
 
 */
