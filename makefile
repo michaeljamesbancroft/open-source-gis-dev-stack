@@ -48,4 +48,4 @@ init-db:
 	-f /docker-entrypoint-initdb.d/02_schemas.sql
 
 gdal-shell:
-	docker exec -it gdal bash
+	docker exec -it jupyterlab ogr2ogr --version
