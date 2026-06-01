@@ -316,6 +316,8 @@ Creates:
 ```text
 .env
 .devcontainer/pgadmin/.pgpass
+.devcontainer/pgadmin/servers.json
+sql/98_generated_roles.sql
 ```
 
 through an interactive prompt for:
