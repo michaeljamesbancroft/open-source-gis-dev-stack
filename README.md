@@ -341,24 +341,25 @@ This repository includes a Makefile to simplify common Docker workflows, environ
 
 | Command              | Purpose                                                                |
 | -------------------- | ---------------------------------------------------------------------- |
-| `make setup`         | Generate `.env` and `.pgpass` through an interactive credential prompt |
-| `make up`            | Build and start the full stack                                         |
-| `make down`          | Stop all services                                                      |
-| `make rebuild`       | Force clean Docker rebuild without cache                               |
-| `make reset`         | Remove containers and persistent Docker volumes                        |
-| `make logs`          | View live container logs                                               |
-| `make ps`            | Show Docker Compose service status                                     |
-| `make clean`         | Aggressive cleanup including Docker prune                              |
-| `make shell-jupyter` | Open a shell inside the Jupyter container                              |
-| `make shell-postgis` | Open a shell inside the PostGIS container                              |
-| `make psql`          | Launch PostgreSQL CLI inside PostGIS                                   |
-| `make status`        | Show running Docker containers                                         |
-| `make verify-ports`  | Verify localhost-only port exposure                                    |
-| `make init-db`       | Manually re-run database initialization SQL                            |
-| `make gdal-shell`    | Open shell inside Jupyter container using GDAL commands (e.g. ogr2ogr) |
+| [make setup](#generate-credentials-and-setup-environment)         | Generate `.env` and `.pgpass` through an interactive credential prompt |
+| [make up](#build-and-launch-stack)            | Build and start the full stack                                         |
+| [make down](#stop-stack)          | Stop all services                                                      |
+| [make rebuild](#force-clean-rebuild)       | Force clean Docker rebuild without cache                               |
+| [make reset](#remove-containers-and-persistent-volumes)         | Remove containers and persistent Docker volumes                        |
+| [make logs](#view-logs)          | View live container logs                                               |
+| [make ps](#view-service-status)            | Show Docker Compose service status                                     |
+| [make clean](#aggressive-cleanup)         | Aggressive cleanup including Docker prune                              |
+| [make shell-jupyter](#open-shell-inside-jupyter-container) | Open a shell inside the Jupyter container                              |
+| [make shell-postgis](#open-shell-inside-postgis-container) | Open a shell inside the PostGIS container                              |
+| [make psql](#launch-postgresql-cli)          | Launch PostgreSQL CLI inside PostGIS                                   |
+| [make status](#show-running-docker-containers)        | Show running Docker containers                                         |
+| [make verify-ports](#verify-localhost-only-exposure)  | Verify localhost-only port exposure                                    |
+| [make init-db](#manually-re-run-schema-initialization)       | Manually re-run database initialization SQL                            |
+| [make gdal-shell](#gdal-shell-within-jupyter-notebook)    | Open shell inside Jupyter container using GDAL commands (e.g. ogr2ogr) |
 
 ### Examples
 
+[Back to Commands](#available-commands)
 #### Generate credentials and setup environment
 
 ```bash
@@ -382,6 +383,7 @@ through an interactive prompt for:
 
 ---
 
+[Back to Commands](#available-commands)
 #### Build and start stack
 
 ```bash
@@ -397,6 +399,7 @@ docker compose --env-file ../.env up -d --build
 
 ---
 
+[Back to Commands](#available-commands)
 #### Stop stack
 
 ```bash
@@ -405,6 +408,7 @@ make down
 
 ---
 
+[Back to Commands](#available-commands)
 #### Force clean rebuild
 
 ```bash
@@ -418,6 +422,7 @@ Performs:
 
 ---
 
+[Back to Commands](#available-commands)
 #### Remove containers and persistent volumes
 
 ```bash
@@ -432,6 +437,7 @@ Useful when:
 
 ---
 
+[Back to Commands](#available-commands)
 #### View logs
 
 ```bash
@@ -442,6 +448,7 @@ Tail logs from all services.
 
 ---
 
+[Back to Commands](#available-commands)
 #### View service status
 
 ```bash
@@ -452,6 +459,68 @@ Shows Docker Compose service state.
 
 ---
 
+[Back to Commands](#available-commands)
+#### Aggressive cleanup
+
+```bash
+make clean
+```
+
+Performs:
+
+- `docker compose down -v`
+- Docker system prune
+
+Useful for reclaiming disk space or recovering from corrupted builds.
+
+---
+
+[Back to Commands](#available-commands)
+#### Open shell inside Jupyter container
+
+```bash
+make shell-jupyter
+```
+
+---
+
+[Back to Commands](#available-commands)
+#### Open shell inside PostGIS container
+
+```bash
+make shell-postgis
+```
+
+---
+
+[Back to Commands](#available-commands)
+#### Launch PostgreSQL CLI
+
+```bash
+make psql
+```
+
+Connects directly to the configured PostGIS database.
+
+---
+
+[Back to Commands](#available-commands)
+### Show running Docker containers
+
+```bash
+make status
+```
+
+Runs
+```text
+docker ps
+```
+
+Outputs table showing Container ID, Image, Command, Created, Status, and Ports for Docker container
+
+---
+
+[Back to Commands](#available-commands)
 #### Verify localhost-only exposure
 
 ```bash
@@ -473,32 +542,7 @@ Confirms services are bound to localhost and not exposed to the LAN.
 
 ---
 
-#### Open shell inside Jupyter container
-
-```bash
-make shell-jupyter
-```
-
----
-
-#### Open shell inside PostGIS container
-
-```bash
-make shell-postgis
-```
-
----
-
-#### Launch PostgreSQL CLI
-
-```bash
-make psql
-```
-
-Connects directly to the configured PostGIS database.
-
----
-
+[Back to Commands](#available-commands)
 #### Manually re-run schema initialization
 
 ```bash
@@ -509,21 +553,7 @@ Useful for testing schema updates without recreating the full environment.
 
 ---
 
-#### Aggressive cleanup
-
-```bash
-make clean
-```
-
-Performs:
-
-- `docker compose down -v`
-- Docker system prune
-
-Useful for reclaiming disk space or recovering from corrupted builds.
-
----
-
+[Back to Commands](#available-commands)
 ### GDAL Shell Within Jupyter Notebook
 
 ```bash
