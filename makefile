@@ -46,3 +46,6 @@ init-db:
 	-U $$POSTGRES_USER \
 	-d $$POSTGRES_DB \
 	-f /docker-entrypoint-initdb.d/02_schemas.sql
+
+gdal-shell:
+	docker exec -it gdal bash

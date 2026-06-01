@@ -355,6 +355,7 @@ This repository includes a Makefile to simplify common Docker workflows, environ
 | `make status`        | Show running Docker containers                                         |
 | `make verify-ports`  | Verify localhost-only port exposure                                    |
 | `make init-db`       | Manually re-run database initialization SQL                            |
+| `make gdal-shell`    | Open shell inside Jupyter container using GDAL commands (e.g. ogr2ogr) |
 
 ### Examples
 
@@ -520,6 +521,16 @@ Performs:
 - Docker system prune
 
 Useful for reclaiming disk space or recovering from corrupted builds.
+
+---
+
+### GDAL Shell Within Jupyter Notebook
+
+```bash
+make gdal-shell
+```
+
+Useful for importing data to PostGIS through a Jupyter notebook from command line BASH.
 
 ---
 
