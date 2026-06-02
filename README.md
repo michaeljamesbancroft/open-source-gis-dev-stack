@@ -551,6 +551,7 @@ refreshes tiles schema outputs
 
 ---
 
+[Back to Commands](#available-commands)
 ####  Start Prefect Server Inside Notebook
 
 ```bash
@@ -575,6 +576,7 @@ http://localhost:4200
 
 ---
 
+[Back to Commands](#available-commands)
 #### Check Installed Prefect Version
 
 ```bash
