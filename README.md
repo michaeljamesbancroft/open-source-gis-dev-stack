@@ -305,6 +305,9 @@ This repository includes a Makefile to simplify common Docker workflows, environ
 | [make refresh-live](#refresh-live-notebook-data-with-prefect)   | Pull latest API data into Jupyter notebook with Prefect                    |
 | [make prefect-server](#start-prefect-server-inside-notebook)    | Start a Prefect Version inside your Jupyter notebook                       |
 | [make prefect-version](#check-installed-prefect-version)        | Check version of Prefect installed in your containter                      |
+| [make minio-console](#print-minio-console)                      | Prints the minio console URL to your terminal                              |
+| [make minio-api](#print-minio-api)                              | Prints the URL to the minio API to your terminal                           |
+| [make create-bucket](#create-minio-bucket)                      | Creates a minio bucket with the create_minio_bucket.py script              |
 
 ### Examples
 
@@ -592,6 +595,83 @@ Example output:
 ```text
 Version: 3.x.x
 API version: ...
+```
+
+---
+
+[Back to Commands](#available-commands)
+#### Print Minio Console
+
+```bash
+make minio-console
+```
+
+Command
+```bash
+@echo "MinIO Console: http://localhost:9001"
+```
+
+Outputs
+
+```text
+http://localhost:9001
+```
+
+Prints the URL to the minio console to your terminal for convenience
+
+---
+
+[Back to Commands](#available-commands)
+#### Print Minio API
+
+```bash
+make minio-api
+```
+
+Command
+```bash
+@echo "MinIO S3 API: http://localhost:9000"
+```
+
+Outputs
+
+```text
+http://localhost:9000
+```
+
+Prints the URL to the minio API to your terminal for convenience
+
+---
+
+[Back to Commands](#available-commands)
+#### Create Minio Bucket
+
+```bash
+make create-bucket
+```
+
+Commands
+```bash
+docker exec -it jupyterlab \
+python scripts/create_minio_bucket.py
+```
+
+Example Output (First Run)
+```text
+docker exec -it jupyterlab python scripts/create_minio_bucket.py
+
+Connecting to MinIO...
+Endpoint: http://minio:9000
+
+Authenticated successfully.
+
+Checking bucket: gis-data
+
+Bucket does not exist.
+
+Created bucket: gis-data
+
+Done.
 ```
 
 ---
