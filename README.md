@@ -169,6 +169,8 @@ This repository provides an isolated development stack for:
 | Adminer              | Lightweight database UI           | http://localhost:8080 |
 | JupyterLab           | Interactive analytics environment | http://localhost:8888 |
 | pg_tileserv          | PostGIS vector tile server        | http://localhost:7800 |
+| MinIO API            | S3-compatible object storage API  | http://localhost:9000 |
+| MinIO Console        | Object storage browser UI         | http://localhost:9001 |
 
 Note: All exposed services are bound to `127.0.0.1` by default to ensure the services run locally on your machine rather than through your local network.
 
@@ -685,7 +687,7 @@ Planned additions:
 
 ~~* pg_tileserv vector tile workflows: DONE~~
 ~~* Airflow / Prefect orchestration: DONE~~
-* Cloud-native storage support
+~~* Cloud-native storage support: DONE (Minio integration)~~
 * GeoServer
 * Apache Sedona integration
 

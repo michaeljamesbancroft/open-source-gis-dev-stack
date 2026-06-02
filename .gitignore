@@ -10,6 +10,7 @@
 !.devcontainer/pgadmin/servers.json.example
 
 sql/98_generated_roles.sql
+.prefect/
 
 *.pem
 *.key

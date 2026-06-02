@@ -61,3 +61,13 @@ prefect-server:
 
 prefect-version:
 	docker exec -it jupyterlab prefect version
+
+minio-console:
+	@echo "MinIO Console: http://localhost:9001"
+
+minio-api:
+	@echo "MinIO S3 API: http://localhost:9000"
+
+create-bucket:
+	docker exec -it jupyterlab \
+	python scripts/create_minio_bucket.py

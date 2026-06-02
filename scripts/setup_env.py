@@ -236,6 +236,20 @@ tileserver_password = prompt_password("pg_tileserv DB password: ")
 notebook_user = "notebook"
 notebook_password = prompt_password("Notebook DB role password: ")
 
+print("\nMinIO Cloud Storage Setup")
+
+minio_root_user = prompt_required(
+    "MinIO admin username: "
+)
+
+minio_root_password = prompt_password(
+    "MinIO admin password: "
+)
+
+minio_bucket = prompt_required(
+    "MinIO default bucket name: "
+)
+
 env_content = f"""POSTGRES_USER={postgres_user}
 POSTGRES_PASSWORD={postgres_password}
 POSTGRES_DB={postgres_db}
@@ -250,6 +264,12 @@ TILESERVER_PASSWORD={tileserver_password}
 
 NOTEBOOK_DB_USER={notebook_user}
 NOTEBOOK_DB_PASSWORD={notebook_password}
+
+MINIO_ROOT_USER={minio_root_user}
+MINIO_ROOT_PASSWORD={minio_root_password}
+
+S3_ENDPOINT_URL=http://minio:9000
+S3_BUCKET={minio_bucket}
 """
 
 ENV_PATH.write_text(env_content, encoding="utf-8")
@@ -279,14 +299,22 @@ create_generated_roles_sql(
     notebook_password=notebook_password,
 )
 
-print("\nCreated:")
+print("\nCreated configuration:")
 
 print(f"  {ENV_PATH}")
 print(f"  {PGPASS_PATH}")
 print(f"  {SERVERS_JSON_PATH}")
 print(f"  {GENERATED_ROLES_SQL_PATH}")
 
-print("\nNext steps:")
+print(
+    "\nMinIO Console:"
+    "\nhttp://localhost:9001"
+)
 
-print("\ncd .devcontainer")
-print("docker compose --env-file ../.env up -d --build")
+print(
+    "\nMinIO S3 API:"
+    "\nhttp://localhost:9000"
+)
+
+print("\nNext steps:")
+print("\nmake up (Start the Docker containers)")
