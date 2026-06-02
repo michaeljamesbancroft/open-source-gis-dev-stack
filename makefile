@@ -52,3 +52,12 @@ init-db:
 	-U $$POSTGRES_USER \
 	-d $$POSTGRES_DB \
 	-f /docker-entrypoint-initdb.d/02_schemas.sql
+
+refresh-live:
+	docker exec -it jupyterlab python /home/jovyan/src/pipelines/refresh_live_data.py
+
+prefect-server:
+	docker exec -it jupyterlab prefect server start --host 0.0.0.0
+
+prefect-version:
+	docker exec -it jupyterlab prefect version

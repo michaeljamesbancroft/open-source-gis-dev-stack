@@ -20,6 +20,9 @@ secrets/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+src/pipelines/refresh_live_data.py
+!src/pipelines/refresh_live_data.example.py
+.prefect/
 
 # VS Code
 .vscode/
