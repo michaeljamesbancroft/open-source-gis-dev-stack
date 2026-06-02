@@ -33,7 +33,6 @@ This repository provides an isolated development stack for:
 - [Quick Start](#quick-start) 
   - [Clone Repository](#clone-repository) 
   - [Set Your PostGIS, pgAdmin, and Jupyter Credentials through Make](#set-your-postgis-pgadmin-and-jupyter-credentials-through-make)
-  - [Manually Configure Environment Variables](#manually-configure-environment-variables) 
 - [VS Code Dev Container Creation](#vs-code-dev-container-creation) 
 - [Build and Launch Stack](#build-and-launch-stack)
 - [Makefile](#makefile)
@@ -285,22 +284,25 @@ This repository includes a Makefile to simplify common Docker workflows, environ
 
 | Command              | Purpose                                                                |
 | -------------------- | ---------------------------------------------------------------------- |
-| [make setup](#generate-credentials-and-setup-environment)         | Generate `.env` and `.pgpass` through an interactive credential prompt |
-| [make apply-roles](#apply-database-roles-to-user)         | Sets database permissions for user and pg_tileserv |
-| [make up](#build-and-launch-stack)            | Build and start the full stack                                         |
-| [make down](#stop-stack)          | Stop all services                                                      |
-| [make rebuild](#force-clean-rebuild)       | Force clean Docker rebuild without cache                               |
-| [make reset](#remove-containers-and-persistent-volumes)         | Remove containers and persistent Docker volumes                        |
-| [make logs](#view-logs)          | View live container logs                                               |
-| [make ps](#view-service-status)            | Show Docker Compose service status                                     |
-| [make clean](#aggressive-cleanup)         | Aggressive cleanup including Docker prune                              |
-| [make shell-jupyter](#open-shell-inside-jupyter-container) | Open a shell inside the Jupyter container                              |
-| [make shell-postgis](#open-shell-inside-postgis-container) | Open a shell inside the PostGIS container                              |
-| [make shell-gdal](#gdal-shell-within-jupyter-notebook)    | Open shell inside Jupyter container using GDAL commands (e.g. ogr2ogr) |
-| [make psql](#launch-postgresql-cli)          | Launch PostgreSQL CLI inside PostGIS                                   |
-| [make status](#show-running-docker-containers)        | Show running Docker containers                                         |
-| [make verify-ports](#verify-localhost-only-exposure)  | Verify localhost-only port exposure                                    |
-| [make init-db](#manually-re-run-schema-initialization)       | Manually re-run database initialization SQL                            |
+| [make setup](#generate-credentials-and-setup-environment)       | Generate `.env` and `.pgpass` through an interactive credential prompt     |
+| [make apply-roles](#apply-database-roles-to-user)               | Sets database permissions for user and pg_tileserv                         |
+| [make up](#build-and-launch-stack)                              | Build and start the full stack                                             |
+| [make down](#stop-stack)                                        | Stop all services                                                          |
+| [make rebuild](#force-clean-rebuild)                            | Force clean Docker rebuild without cache                                   |
+| [make reset](#remove-containers-and-persistent-volumes)         | Remove containers and persistent Docker volumes                            |
+| [make logs](#view-logs)                                         | View live container logs                                                   |
+| [make ps](#view-service-status)                                 | Show Docker Compose service status                                         |
+| [make clean](#aggressive-cleanup)                               | Aggressive cleanup including Docker prune                                  |
+| [make shell-jupyter](#open-shell-inside-jupyter-container)      | Open a shell inside the Jupyter container                                  |
+| [make shell-postgis](#open-shell-inside-postgis-container)      | Open a shell inside the PostGIS container                                  |
+| [make shell-gdal](#gdal-shell-within-jupyter-notebook)          | Open shell inside Jupyter container using GDAL commands (e.g. ogr2ogr)     |
+| [make psql](#launch-postgresql-cli)                             | Launch PostgreSQL CLI inside PostGIS                                       |
+| [make status](#show-running-docker-containers)                  | Show running Docker containers                                             |
+| [make verify-ports](#verify-localhost-only-exposure)            | Verify localhost-only port exposure                                        |
+| [make init-db](#manually-re-run-schema-initialization)          | Manually re-run database initialization SQL                                |
+| [make refresh-live](#refresh-live-notebook-data-with-prefect)   | Pull latest API data into Jupyter notebook with Prefect                    |
+| [make prefect-server](#start-prefect-server-inside-notebook)    | Start a Prefect Version inside your Jupyter notebook                       |
+| [make prefect-version](#check-installed-prefect-version)        | Check version of Prefect installed in your containter                      |
 
 ### Examples
 
@@ -529,6 +531,67 @@ Useful for testing schema updates without recreating the full environment.
 
 ---
 
+[Back to Commands](#available-commands)
+#### Refresh Live Notebook Data with Prefect
+
+```bash
+make refresh-live
+```
+
+Executes the local Prefect geospatial live-data refresh workflow.
+
+Output:
+
+```text
+downloads live data
+writes raw JSON snapshot
+loads/updates PostGIS tables
+refreshes tiles schema outputs
+```
+
+---
+
+####  Start Prefect Server Inside Notebook
+
+```bash
+make prefect-server
+```
+
+Launches the local Prefect UI and orchestration backend.
+
+Output:
+
+```text
+Prefect API server
+workflow dashboard
+job monitoring UI
+```
+
+Accessible at:
+
+```text
+http://localhost:4200
+```
+
+---
+
+#### Check Installed Prefect Version
+
+```bash
+make prefect-version
+```
+
+Displays the installed Prefect version inside the Jupyter container.
+
+Example output:
+
+```text
+Version: 3.x.x
+API version: ...
+```
+
+---
+
 **Note:** If your shell does not already include `make`, install it using:
 
 - [Chocolatey](https://chocolatey.org/install)
@@ -594,6 +657,7 @@ Key packages include:
 * dask-geopandas
 * contextily
 * folium
+* prefect
 
 ---
 
