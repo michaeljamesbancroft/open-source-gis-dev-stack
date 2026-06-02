@@ -765,9 +765,9 @@ This environment is suitable for:
 
 Planned additions:
 
-~~* pg_tileserv vector tile workflows: DONE~~
-~~* Airflow / Prefect orchestration: DONE~~
-~~* Cloud-native storage support: DONE (Minio integration)~~
+* ~~pg_tileserv vector tile workflows: DONE~~
+* ~~Airflow / Prefect orchestration: DONE~~
+* ~~Cloud-native storage support: DONE (Minio integration)~~
 * GeoServer
 * Apache Sedona integration
 
