@@ -683,12 +683,11 @@ This environment is suitable for:
 
 Planned additions:
 
-* Apache Sedona integration
-* pg_tileserv: DONE
-* GeoServer
-* Airflow / Prefect orchestration: DONE
-* Vector tile workflows
+~~* pg_tileserv vector tile workflows: DONE~~
+~~* Airflow / Prefect orchestration: DONE~~
 * Cloud-native storage support
+* GeoServer
+* Apache Sedona integration
 
 ---
 
