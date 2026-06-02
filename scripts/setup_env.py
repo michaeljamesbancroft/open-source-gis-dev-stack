@@ -250,6 +250,10 @@ minio_bucket = prompt_required(
     "MinIO default bucket name: "
 )
 
+print("\nGeoServer Setup")
+geoserver_admin_user = prompt_required("GeoServer admin username: ")
+geoserver_admin_password = prompt_password("GeoServer admin password: ")
+
 env_content = f"""POSTGRES_USER={postgres_user}
 POSTGRES_PASSWORD={postgres_password}
 POSTGRES_DB={postgres_db}
@@ -270,6 +274,9 @@ MINIO_ROOT_PASSWORD={minio_root_password}
 
 S3_ENDPOINT_URL=http://minio:9000
 S3_BUCKET={minio_bucket}
+
+GEOSERVER_ADMIN_USER={geoserver_admin_user}
+GEOSERVER_ADMIN_PASSWORD={geoserver_admin_password}
 """
 
 ENV_PATH.write_text(env_content, encoding="utf-8")
@@ -318,3 +325,4 @@ print(
 
 print("\nNext steps:")
 print("\nmake up (Start the Docker containers)")
+print("\nmake create-bucket (Create the MinIO bucket)")

@@ -130,7 +130,32 @@ services:
     volumes:
       - minio_data:/data
 
+  geoserver:
+    image: docker.osgeo.org/geoserver:2.26.x
+    container_name: geoserver
+    restart: unless-stopped
+
+    env_file:
+      - ../.env
+
+    environment:
+      GEOSERVER_ADMIN_USER: ${GEOSERVER_ADMIN_USER:?missing}
+      GEOSERVER_ADMIN_PASSWORD: ${GEOSERVER_ADMIN_PASSWORD:?missing}
+      INSTALL_EXTENSIONS: "true"
+      STABLE_EXTENSIONS: "vectortiles,ysld,ogcapi-features"
+
+    ports:
+      - "127.0.0.1:8082:8080"
+
+    volumes:
+      - geoserver_data:/opt/geoserver_data
+
+    depends_on:
+      postgis:
+        condition: service_healthy
+
 volumes:
   postgis_data:
   pgadmin_data:
   minio_data:
+  geoserver_data:

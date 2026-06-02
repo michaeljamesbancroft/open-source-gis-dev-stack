@@ -162,15 +162,16 @@ This repository provides an isolated development stack for:
 
 ### Infrastructure / Services
 
-| Service              | Purpose                           | URL                   |
-| -------------------- | --------------------------------- | --------------------- |
-| PostgreSQL + PostGIS | Spatial database                  | localhost:5432        |
-| pgAdmin              | Database administration UI        | http://localhost:5050 |
-| Adminer              | Lightweight database UI           | http://localhost:8080 |
-| JupyterLab           | Interactive analytics environment | http://localhost:8888 |
-| pg_tileserv          | PostGIS vector tile server        | http://localhost:7800 |
-| MinIO API            | S3-compatible object storage API  | http://localhost:9000 |
-| MinIO Console        | Object storage browser UI         | http://localhost:9001 |
+| Service              | Purpose                           | URL                             |
+| -------------------- | --------------------------------- | --------------------------------|
+| PostgreSQL + PostGIS | Spatial database                  | localhost:5432                  |
+| pgAdmin              | Database administration UI        | http://localhost:5050           |
+| Adminer              | Lightweight database UI           | http://localhost:8080           |
+| JupyterLab           | Interactive analytics environment | http://localhost:8888           |
+| pg_tileserv          | PostGIS vector tile server        | http://localhost:7800           |
+| MinIO API            | S3-compatible object storage API  | http://localhost:9000           |
+| MinIO Console        | Object storage browser UI         | http://localhost:9001           |
+| Geoserver            | Service creation UI               | http://localhost:8082/geoserver |
 
 Note: All exposed services are bound to `127.0.0.1` by default to ensure the services run locally on your machine rather than through your local network.
 

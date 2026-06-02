@@ -71,3 +71,6 @@ minio-api:
 create-bucket:
 	docker exec -it jupyterlab \
 	python scripts/create_minio_bucket.py
+
+geoserver-ui:
+	@echo "GeoServer UI: http://localhost:8082/geoserver"
