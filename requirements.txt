@@ -67,14 +67,13 @@ whitebox==2.3.6
 contextily==1.6.2
 folium==0.20.0
 movingpandas==0.22.4
-
 ipyleaflet==0.20.0
 keplergl==0.3.7
-
 cartopy==0.24.1
 bokeh==3.7.3
 panel==1.7.5
 streamlit==1.48.1
+leafmap==0.62.0
 
 #######################################################
 # Data Engineering / Formats
@@ -109,6 +108,7 @@ ipykernel==6.30.1
 jupyterlab-git==0.51.2
 jupyterlab-lsp==5.1.1
 python-lsp-server==1.12.2
+jupyter-leaflet==0.20.0
 
 ipywidgets==8.1.7
 nbdime==4.0.2
