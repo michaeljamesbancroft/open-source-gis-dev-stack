@@ -792,7 +792,7 @@ Planned additions:
 * ~~pg_tileserv vector tile workflows: DONE~~
 * ~~Airflow / Prefect orchestration: DONE~~
 * ~~Cloud-native storage support: DONE (Minio integration)~~
-* GeoServer
+* ~~GeoServer: DONE~~
 * Apache Sedona integration
 
 ---
