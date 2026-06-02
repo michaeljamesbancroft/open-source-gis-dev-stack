@@ -309,6 +309,7 @@ This repository includes a Makefile to simplify common Docker workflows, environ
 | [make minio-console](#print-minio-console)                      | Prints the minio console URL to your terminal                              |
 | [make minio-api](#print-minio-api)                              | Prints the URL to the minio API to your terminal                           |
 | [make create-bucket](#create-minio-bucket)                      | Creates a minio bucket with the create_minio_bucket.py script              |
+| [make geoserver-ui](#print-geoserver-ui)                        | Prints the Geoserver UI URL to your terminal                               |
 
 ### Examples
 
@@ -674,6 +675,28 @@ Created bucket: gis-data
 
 Done.
 ```
+
+---
+
+[Back to Commands](#available-commands)
+#### Print Geoserver UI
+
+```bash
+make geoserver-ui
+```
+
+Command
+```bash
+@echo "GeoServer UI: http://localhost:8082/geoserver"
+```
+
+Outputs
+
+```text
+[http://localhost:9001](http://localhost:8082/geoserver)
+```
+
+Prints the URL to the Geoserver UI to your terminal for convenience
 
 ---
 
