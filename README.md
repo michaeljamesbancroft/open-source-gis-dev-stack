@@ -686,7 +686,7 @@ Planned additions:
 * Apache Sedona integration
 * pg_tileserv: DONE
 * GeoServer
-* Airflow / Prefect orchestration
+* Airflow / Prefect orchestration: DONE
 * Vector tile workflows
 * Cloud-native storage support
 
